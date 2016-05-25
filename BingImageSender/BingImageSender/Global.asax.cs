@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BingImageSender.Jobs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -16,6 +17,9 @@ namespace BingImageSender
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            EmailSender.DownloadImage();
+            //EmailScheduler.Start();
         }
     }
 }
