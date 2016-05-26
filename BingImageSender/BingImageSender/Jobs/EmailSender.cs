@@ -11,11 +11,20 @@ namespace BingImageSender.Jobs
 {
     public class EmailSender : IJob
     {
+        private string _senderEmail = "ogurtsov.alexandr2016@yandex.ru";  //how to be in this situations?
+        private string _password = "123456!@#";                           //not to show
+
+        private string _host = "smtp.yandex.ru";
+        private int _port = 25;
+
         
+                  
+
         public static Uri GetImageUrl()
         {
-            var FilePath = "http://www.bing.com/HPImageArchive.aspx?format=xml&idx=0&n=1&mkt=en-US";
-            string xmlStr;
+            var FilePath = "http://www.bing.com/HPImageArchive.aspx?format=xml&idx=0&n=1&mkt=en-US"; //daily picture xml
+            string xmlStr = string.Empty;
+
             using (var wc = new WebClient())
             {
                 xmlStr = wc.DownloadString(FilePath);
@@ -45,9 +54,8 @@ namespace BingImageSender.Jobs
         public void Execute(IJobExecutionContext context)
         {
             string to = (string)context.Scheduler.Context.Get("email");
-            string from = "ogurtsov.alexandr2016@yandex.ru";
 
-            using (MailMessage message = new MailMessage(from, to))
+            using (MailMessage message = new MailMessage(_senderEmail, to))
             {
                 message.Subject = "Daily Bing picture";
                 message.Body = string.Format(@"Hello, it's a Bing picture below for to day. Have a nice day :)");
@@ -66,9 +74,9 @@ namespace BingImageSender.Jobs
                 using (SmtpClient client = new SmtpClient
                 {
                     EnableSsl = true,
-                    Host = "smtp.yandex.ru",
-                    Port = 25,
-                    Credentials = new NetworkCredential("ogurtsov.alexandr2016@yandex.ru", "123456!@#")
+                    Host = _host,
+                    Port = _port,
+                    Credentials = new NetworkCredential(_senderEmail, _password)
                 })
                 {
                     client.Send(message);
