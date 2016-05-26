@@ -1,6 +1,11 @@
 ﻿body {
     padding-top: 50px;
     padding-bottom: 20px;
+    background: url('../Files/image.jpg') no-repeat center center fixed;
+    
+    background-size: cover; /* Современные браузеры */
+
+    margin: auto;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -21,4 +26,7 @@ input,
 select,
 textarea {
     max-width: 280px;
+}
+
+#Bing {
 }

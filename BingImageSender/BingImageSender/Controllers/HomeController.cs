@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BingImageSender.Jobs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,6 +9,15 @@ namespace BingImageSender.Controllers
 {
     public class HomeController : Controller
     {
+        [HttpPost]
+        public ActionResult Send(string email)
+        {
+
+            EmailScheduler.Start(email);
+
+            return View("Index");
+        }
+
         public ActionResult Index()
         {
             return View();

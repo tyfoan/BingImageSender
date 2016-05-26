@@ -16,10 +16,9 @@ namespace BingImageSender
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+            EmailSender.DownloadImage(); //downloading an image from Bing.
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            EmailSender.DownloadImage();
-            //EmailScheduler.Start();
         }
     }
 }
