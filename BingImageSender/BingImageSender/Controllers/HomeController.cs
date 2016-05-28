@@ -37,6 +37,7 @@ namespace BingImageSender.Controllers
 
         public ActionResult Index()
         {
+            EmailSender.DownloadImage();
             return View();
         }
 

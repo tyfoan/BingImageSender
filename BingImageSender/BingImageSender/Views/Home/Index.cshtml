@@ -6,7 +6,7 @@
     <h1>Send mail to: </h1>
     @using (Html.BeginForm("Send", "Home", FormMethod.Post))
     {
-        <p><input type="email" class="form-control" name="email"></p>
+        <p><input type="email" class="form-control" name="email" required placeholder="Enter your email"></p>
         <p><button type="submit" class="btn btn-primary btn-lg">Begin sending &raquo;</button></p>
     }
 </div>
