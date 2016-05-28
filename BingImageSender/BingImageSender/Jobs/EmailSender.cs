@@ -1,11 +1,13 @@
 ﻿using Quartz;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Net.Mail;
+
 using System.Web;
 using System.Xml;
+
 
 namespace BingImageSender.Jobs
 {
@@ -17,8 +19,8 @@ namespace BingImageSender.Jobs
         private string _host = "smtp.yandex.ru";
         private int _port = 25;
 
-        
-                  
+        private List<string> _suscribers = new List<string>();
+
 
         public static Uri GetImageUrl()
         {
@@ -39,7 +41,7 @@ namespace BingImageSender.Jobs
         public static void DownloadImage()
         {
             string saveTo = HttpContext.Current.Server.MapPath("~/Files/image.jpg");
-               //System.Web.Hosting.HostingEnvironment.MapPath("~/Files/image.jpg");
+            //System.Web.Hosting.HostingEnvironment.MapPath("~/Files/image.jpg");
             Uri saveFrom = GetImageUrl();
 
             using (WebClient client = new WebClient())
@@ -49,37 +51,57 @@ namespace BingImageSender.Jobs
         }
 
 
-       
+
 
         public void Execute(IJobExecutionContext context)
         {
-            string to = (string)context.Scheduler.Context.Get("email");
+            string email = (string)context.Scheduler.Context.Get("email");
 
-            using (MailMessage message = new MailMessage(_senderEmail, to))
+            if (!_suscribers.Contains(email))
+                _suscribers.Add(email);
+
+
+            foreach (var subscriber in _suscribers)
             {
-                message.Subject = "Daily Bing picture";
-                message.Body = string.Format(@"Hello, it's a Bing picture below for to day. Have a nice day :)");
-                try
+                using (MailMessage message = new MailMessage(_senderEmail, subscriber))
                 {
-                    string x = System.Web.Hosting.HostingEnvironment.MapPath("~/Files/image.jpg");
-                    Debug.WriteLine(x);
-                    message.Attachments.Add(new Attachment(x));
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.Message);
-                }
+                    string unsubscribeLink = "localhost:51229/Home/Unsubscribe";// HttpContext.Current.Request.Url.Port
+                    //string unsubscribeLink = //.MapPath("~/View/Unsubscribe.cshtml");
 
 
-                using (SmtpClient client = new SmtpClient
-                {
-                    EnableSsl = true,
-                    Host = _host,
-                    Port = _port,
-                    Credentials = new NetworkCredential(_senderEmail, _password)
-                })
-                {
-                    client.Send(message);
+
+                    message.Subject = "Daily Bing picture";
+                    message.IsBodyHtml = true;
+                    message.Body = "Hello, it's a Bing picture below for to day. "+
+                        "<form method=\"post\" action=\"http://localhost:51229/Home/Unsubscribe\">" +
+                            "<input type=\"hidden\" name =\"email\" value ="+ subscriber +">" +
+                            "<input type=\"submit\" value=\"Submit\">" +
+                        "</form>";
+
+
+
+                    try
+                    {
+                        string imagePath = System.Web.Hosting.HostingEnvironment.MapPath("~/Files/image.jpg");
+                        Debug.WriteLine(imagePath);
+                        message.Attachments.Add(new Attachment(imagePath));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                    }
+
+
+                    using (SmtpClient client = new SmtpClient
+                    {
+                        EnableSsl = true,
+                        Host = _host,
+                        Port = _port,
+                        Credentials = new NetworkCredential(_senderEmail, _password)
+                    })
+                    {
+                        client.Send(message);
+                    }
                 }
             }
         }

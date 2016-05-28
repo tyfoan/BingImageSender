@@ -13,18 +13,28 @@ namespace BingImageSender.Jobs
             scheduler.Start();
             scheduler.Context.Put("email", email);
 
-            IJobDetail job = JobBuilder.Create<EmailSender>().Build();
-            
+            IJobDetail job = JobBuilder.Create<EmailSender>()
+                .WithIdentity(email)
+                .Build();
+
 
             ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("trigger", "group")   
-                .StartNow()                           
-                .WithSimpleSchedule(x => x            
-                    .WithIntervalInMinutes(1)         
-                    .WithRepeatCount(2))              
-                .Build();                             
+                .WithIdentity(email)
+                .StartNow()
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInSeconds(20)        
+                    .WithRepeatCount(3))              
+                .Build();
 
-            scheduler.ScheduleJob(job, trigger);      
+            if (!scheduler.CheckExists(trigger.Key))
+                scheduler.ScheduleJob(job, trigger);      
+        }
+        public static void Unsubscribe(string email)
+        {
+            IScheduler scheduler = StdSchedulerFactory.GetDefaultScheduler();
+
+            scheduler.DeleteJob(new JobKey(email));
+
         }
     }
 }
